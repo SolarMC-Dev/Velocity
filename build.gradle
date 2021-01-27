@@ -10,26 +10,25 @@ buildscript {
 plugins {
     id 'java'
     id "com.github.spotbugs" version "4.2.4" apply false
+    id "com.adarshr.test-logger" version "2.1.1"
 }
 
 allprojects {
     apply plugin: "com.github.spotbugs"
 
-    group 'com.velocitypowered'
+    group 'gg.solarmc'
     version '1.1.4-SNAPSHOT'
 
     ext {
         // dependency versions
         textVersion = '3.0.4'
         adventureVersion = '4.4.0'
-        adventurePlatformVersion = '4.0.0-SNAPSHOT'
         junitVersion = '5.7.0'
         slf4jVersion = '1.7.30'
-        log4jVersion = '2.13.3'
+        log4jVersion = '2.14.0'
         nettyVersion = '4.1.58.Final'
         guavaVersion = '25.1-jre'
         checkerFrameworkVersion = '3.6.1'
-        configurateVersion = '3.7.1'
 
         getCurrentShortRevision = {
             new ByteArrayOutputStream().withStream { os ->
@@ -48,20 +47,40 @@ allprojects {
         mavenCentral()
 
         // for kyoripowered dependencies
-        maven {
+        /*maven {
             url 'https://oss.sonatype.org/content/groups/public/'
-        }
+        }*/
 
         // Velocity repo
         maven {
             url "https://nexus.velocitypowered.com/repository/maven-public/"
         }
+
+        // Solar repo
+        maven {
+            url "https://mvn-repo.platinum-mc.com/releases"
+        }
+
+        // Omnibus repo
+        maven {
+            url "https://mvn-repo.arim.space/lesser-gpl3"
+        }
+    }
+
+    java {
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
 
     test {
         reports {
             junitXml.enabled = true
         }
+    }
+
+    testlogger {
+        showFullStackTraces true
+        showStandardStreams true
     }
 
     tasks.withType(com.github.spotbugs.snom.SpotBugsTask) {

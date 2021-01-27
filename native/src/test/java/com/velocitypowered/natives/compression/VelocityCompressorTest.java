@@ -17,9 +17,7 @@ import java.util.zip.DataFormatException;
 import java.util.zip.Deflater;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.EnabledOnJre;
 import org.junit.jupiter.api.condition.EnabledOnOs;
-import org.junit.jupiter.api.condition.JRE;
 
 class VelocityCompressorTest {
 
@@ -63,7 +61,6 @@ class VelocityCompressorTest {
   }
 
   @Test
-  @EnabledOnJre(JRE.JAVA_11)
   void java11IntegrityCheckDirect() throws DataFormatException {
     VelocityCompressor compressor = Java11VelocityCompressor.FACTORY
         .create(Deflater.DEFAULT_COMPRESSION);
@@ -71,7 +68,6 @@ class VelocityCompressorTest {
   }
 
   @Test
-  @EnabledOnJre(JRE.JAVA_11)
   void java11IntegrityCheckHeap() throws DataFormatException {
     VelocityCompressor compressor = Java11VelocityCompressor.FACTORY
         .create(Deflater.DEFAULT_COMPRESSION);

@@ -1,16 +1,11 @@
 plugins {
     id 'java-library'
-    id 'checkstyle'
+    //id 'checkstyle'
     id 'maven-publish'
 }
 
-apply from: '../gradle/checkstyle.gradle'
+//apply from: '../gradle/checkstyle.gradle'
 apply from: '../gradle/publish.gradle'
-
-java {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
-}
 
 dependencies {
     implementation "com.google.guava:guava:${guavaVersion}"
