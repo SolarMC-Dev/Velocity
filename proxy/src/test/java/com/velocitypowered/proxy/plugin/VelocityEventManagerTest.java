@@ -25,7 +25,8 @@ public class VelocityEventManagerTest {
     return new VelocityEventManager(new FakePluginManager());
   }
 
-  private static class SimpleEvent {
+  // Must be public in order for kyori-asm to generate a method calling it
+  public static class SimpleEvent {
     int value;
   }
 

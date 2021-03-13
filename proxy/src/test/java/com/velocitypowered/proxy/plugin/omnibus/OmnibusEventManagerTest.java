@@ -9,7 +9,10 @@ public class OmnibusEventManagerTest extends VelocityEventManagerTest {
 
   @Override
   protected EventManager createEventManager() {
-    return new OmnibusEventManager(new FakePluginManager(), new DefaultOmnibus().getEventBus());
+    return new OmnibusEventManager(
+            new FakePluginManager(),
+            new DefaultOmnibus().getEventBus(),
+            new ExportAssistant.NoOpImpl());
   }
 
 }

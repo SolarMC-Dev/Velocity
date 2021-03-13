@@ -1,11 +1,12 @@
 plugins {
     id 'java-library'
-    //id 'checkstyle'
     id 'maven-publish'
+    //id 'checkstyle'
+    id "com.adarshr.test-logger"
 }
 
 //apply from: '../gradle/checkstyle.gradle'
-apply from: '../gradle/publish.gradle'
+apply from: '../gradle/common.gradle'
 
 dependencies {
     implementation "com.google.guava:guava:${guavaVersion}"

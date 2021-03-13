@@ -15,6 +15,7 @@ import space.arim.omnibus.events.RegisteredListener;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -29,12 +30,14 @@ public class OmnibusEventManager implements EventManager {
 
   private final PluginManager pluginManager;
   private final EventBus eventBus;
+  private final ExportAssistant exportAssistant;
 
   private final ConcurrentMap<PluginContainer, Map<Listener, Set<RegisteredListener>>> listeners = new ConcurrentHashMap<>();
 
-  public OmnibusEventManager(PluginManager pluginManager, EventBus eventBus) {
+  public OmnibusEventManager(PluginManager pluginManager, EventBus eventBus, ExportAssistant exportAssistant) {
     this.pluginManager = pluginManager;
     this.eventBus = eventBus;
+    this.exportAssistant = exportAssistant;
   }
 
   private PluginContainer getPluginContainer(Object plugin) {
@@ -78,6 +81,18 @@ public class OmnibusEventManager implements EventManager {
     });
   }
 
+  private void checkAccessible(Object listener) {
+    Class<?> listenerClass = listener.getClass();
+    if (!Modifier.isPublic(listenerClass.getModifiers())) {
+      throw new IllegalArgumentException("Listener " + listener + " must be publicly accessible");
+    }
+    Module ourModule = getClass().getModule();
+    exportAssistant.exportClassIfPossible(listenerClass, ourModule);
+    if (!listenerClass.getModule().isExported(listenerClass.getPackageName(), ourModule)) {
+      throw new IllegalArgumentException("Listener " + listener + " must be exported to com.velocitypowered.proxy");
+    }
+  }
+
   private <E> RegisteredListener registerAnnotatedMethod(Object listenerObject, Class<E> eventClass,
                                                          Method method, Subscribe subscribe) {
     MethodHandle methodHandle;
@@ -94,12 +109,16 @@ public class OmnibusEventManager implements EventManager {
   @Override
   public void register(Object pluginObject, Object listenerObject) {
     PluginContainer plugin = getPluginContainer(pluginObject);
+    checkAccessible(listenerObject);
     AnnotatedListener annotatedListener = new AnnotatedListener(listenerObject);
     MethodScan methodScan = new MethodScan(listenerObject);
 
     addToRegisteredListeners(plugin, annotatedListener, (registeredListeners) -> {
       methodScan.scan((method, subscribe) -> {
         Class<?> eventClass = method.getParameterTypes()[0];
+        if (!eventClass.getModule().isExported(eventClass.getPackageName())) {
+          throw new IllegalArgumentException("Event class " + eventClass + " must be unconditionally exported");
+        }
         registeredListeners.add(registerAnnotatedMethod(listenerObject, eventClass, method, subscribe));
       });
     });

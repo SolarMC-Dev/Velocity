@@ -2,10 +2,13 @@ import com.github.jengelman.gradle.plugins.shadow.transformers.Log4j2PluginsCach
 
 plugins {
     id 'java'
+    id 'maven-publish'
     //id 'checkstyle'
+    id "com.adarshr.test-logger"
 }
 
 // apply from: '../gradle/checkstyle.gradle'
+apply from: '../gradle/common.gradle'
 apply plugin: 'com.github.johnrengelman.shadow'
 
 jar {

@@ -2,10 +2,11 @@ plugins {
     id 'java-library'
     id 'maven-publish'
     //id 'checkstyle'
+    id "com.adarshr.test-logger"
 }
 
 //apply from: '../gradle/checkstyle.gradle'
-apply from: '../gradle/publish.gradle'
+apply from: '../gradle/common.gradle'
 apply plugin: 'com.github.johnrengelman.shadow'
 
 sourceSets {
