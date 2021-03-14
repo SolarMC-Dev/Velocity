@@ -55,6 +55,7 @@ dependencies {
     implementation "org.apache.logging.log4j:log4j-core:${log4jVersion}"
     implementation "org.apache.logging.log4j:log4j-slf4j-impl:${log4jVersion}"
     implementation "org.apache.logging.log4j:log4j-iostreams:${log4jVersion}"
+    implementation "org.apache.logging.log4j:log4j-jul:${log4jVersion}"
 
     implementation 'net.sf.jopt-simple:jopt-simple:5.0.4' // command-line options
     implementation 'net.minecrell:terminalconsoleappender:1.2.0'
@@ -72,6 +73,8 @@ dependencies {
     implementation 'com.spotify:completable-futures:0.3.3'
 
     implementation 'com.electronwill.night-config:toml:3.6.3'
+
+    implementation 'org.bstats:bstats-base:2.2.0'
 
     compileOnly 'com.github.spotbugs:spotbugs-annotations:4.1.2'
 
@@ -114,7 +117,6 @@ shadowJar {
     exclude 'it/unimi/dsi/fastutil/objects/*Object2Float*'
     exclude 'it/unimi/dsi/fastutil/objects/*Object2IntArray*'
     exclude 'it/unimi/dsi/fastutil/objects/*Object2IntAVL*'
-    exclude 'it/unimi/dsi/fastutil/objects/*Object*OpenCustom*'
     exclude 'it/unimi/dsi/fastutil/objects/*Object2IntRB*'
     exclude 'it/unimi/dsi/fastutil/objects/*Object2Long*'
     exclude 'it/unimi/dsi/fastutil/objects/*Object2Object*'
@@ -124,6 +126,8 @@ shadowJar {
     exclude 'it/unimi/dsi/fastutil/objects/*Reference*'
     exclude 'it/unimi/dsi/fastutil/shorts/**'
     exclude 'org/checkerframework/checker/**'
+
+    relocate 'org.bstats', 'com.velocitypowered.proxy.bstats'
 }
 
 artifacts {
