@@ -4,6 +4,7 @@ import com.velocitypowered.api.command.CommandSource;
 import com.velocitypowered.api.event.player.PlayerResourcePackStatusEvent;
 import com.velocitypowered.api.proxy.messages.ChannelMessageSink;
 import com.velocitypowered.api.proxy.messages.ChannelMessageSource;
+import com.velocitypowered.api.proxy.player.Authenticatable;
 import com.velocitypowered.api.proxy.player.PlayerSettings;
 import com.velocitypowered.api.proxy.player.TabList;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
@@ -228,4 +229,11 @@ public interface Player extends CommandSource, Identified, InboundConnection,
    * @return the online solar player for this player
    */
   OnlineSolarPlayer getSolarPlayer();
+
+  /**
+   * Gets the authentication information of the player. Used by the auth plugin
+   *
+   * @return the authentication information
+   */
+  Authenticatable asAuthenticatable();
 }

@@ -24,6 +24,7 @@ import com.velocitypowered.api.proxy.ConnectionRequestBuilder;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ServerConnection;
 import com.velocitypowered.api.proxy.messages.ChannelIdentifier;
+import com.velocitypowered.api.proxy.player.Authenticatable;
 import com.velocitypowered.api.proxy.player.PlayerSettings;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
 import com.velocitypowered.api.util.GameProfile;
@@ -52,10 +53,12 @@ import com.velocitypowered.proxy.protocol.packet.ResourcePackRequest;
 import com.velocitypowered.proxy.protocol.packet.TitlePacket;
 import com.velocitypowered.proxy.protocol.util.PluginMessageUtil;
 import com.velocitypowered.proxy.server.VelocityRegisteredServer;
+import com.velocitypowered.proxy.solar.PlayerAttachment;
 import com.velocitypowered.proxy.tablist.VelocityTabList;
 import com.velocitypowered.proxy.tablist.VelocityTabListLegacy;
 import com.velocitypowered.proxy.util.DurationUtils;
 import com.velocitypowered.proxy.util.collect.CappedSet;
+import gg.solarmc.loader.OnlineSolarPlayer;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
 import java.net.InetSocketAddress;
@@ -115,6 +118,7 @@ public class ConnectedPlayer implements MinecraftConnectionAssociation, Player {
   private final Collection<String> knownChannels;
   private final CompletableFuture<Void> teardownFuture = new CompletableFuture<>();
   private @MonotonicNonNull List<String> serversToTry = null;
+  private final PlayerAttachment playerAttachment = new PlayerAttachment(); // Solar
 
   ConnectedPlayer(VelocityServer server, GameProfile profile, MinecraftConnection connection,
       @Nullable InetSocketAddress virtualHost, boolean onlineMode) {
@@ -1065,4 +1069,16 @@ public class ConnectedPlayer implements MinecraftConnectionAssociation, Player {
       connectWithIndication();
     }
   }
+
+  // Solar start
+  @Override
+  public OnlineSolarPlayer getSolarPlayer() {
+    return playerAttachment.solarPlayer();
+  }
+
+  @Override
+  public Authenticatable asAuthenticatable() {
+    return playerAttachment;
+  }
+  // Solar end
 }
