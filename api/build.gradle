@@ -43,7 +43,7 @@ dependencies {
     testImplementation "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
 
     // SolarMC
-    api "gg.solarmc.loader:loader-core:0.3.0"
+    api "gg.solarmc.loader:loader-core:${dataLoaderVersion}"
     api "space.arim.omnibus:omnibus:1.1.0-M2"
 }
 

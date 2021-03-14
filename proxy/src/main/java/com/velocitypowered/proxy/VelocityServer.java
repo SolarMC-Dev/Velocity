@@ -38,6 +38,7 @@ import com.velocitypowered.proxy.protocol.util.FaviconSerializer;
 import com.velocitypowered.proxy.protocol.util.GameProfileSerializer;
 import com.velocitypowered.proxy.scheduler.VelocityScheduler;
 import com.velocitypowered.proxy.server.ServerMap;
+import com.velocitypowered.proxy.solar.DataCenterLauncher;
 import com.velocitypowered.proxy.util.AddressUtil;
 import com.velocitypowered.proxy.util.EncryptionUtils;
 import com.velocitypowered.proxy.util.VelocityChannelRegistrar;
@@ -46,6 +47,7 @@ import com.velocitypowered.proxy.util.bossbar.VelocityBossBar;
 import com.velocitypowered.proxy.util.ratelimit.Ratelimiter;
 import com.velocitypowered.proxy.util.ratelimit.Ratelimiters;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import gg.solarmc.loader.DataCenter;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
@@ -84,6 +86,7 @@ import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import space.arim.omnibus.Omnibus;
 
 public class VelocityServer implements ProxyServer, ForwardingAudience {
 
@@ -124,7 +127,13 @@ public class VelocityServer implements ProxyServer, ForwardingAudience {
   private final VelocityScheduler scheduler;
   private final VelocityChannelRegistrar channelRegistrar = new VelocityChannelRegistrar();
 
-  VelocityServer(final ProxyOptions options) {
+  // Solar start
+  private final Omnibus omnibus;
+  private DataCenter dataCenter;
+
+  VelocityServer(final Omnibus omnibus, final ProxyOptions options) {
+    this.omnibus = omnibus;
+  // Solar end
     pluginManager = new VelocityPluginManager(this);
     eventManager = new VelocityEventManager(pluginManager);
     commandManager = new VelocityCommandManager(eventManager);
@@ -203,6 +212,8 @@ public class VelocityServer implements ProxyServer, ForwardingAudience {
     for (Map.Entry<String, String> entry : configuration.getServers().entrySet()) {
       servers.register(new ServerInfo(entry.getKey(), AddressUtil.parseAddress(entry.getValue())));
     }
+
+    dataCenter = new DataCenterLauncher(omnibus, Paths.get("config")).launch(this); // Solar
 
     ipAttemptLimiter = Ratelimiters.createWithMilliseconds(configuration.getLoginRatelimit());
     loadPlugins();
@@ -664,4 +675,20 @@ public class VelocityServer implements ProxyServer, ForwardingAudience {
     return version.compareTo(ProtocolVersion.MINECRAFT_1_16) >= 0 ? POST_1_16_PING_SERIALIZER
         : PRE_1_16_PING_SERIALIZER;
   }
+
+  // Solar start
+  @Override
+  public Omnibus getOmnibus() {
+    return omnibus;
+  }
+
+  @Override
+  public DataCenter getDataCenter() {
+    DataCenter dataCenter = this.dataCenter;
+    if (dataCenter == null) {
+      throw new IllegalStateException("Not initialized");
+    }
+    return dataCenter;
+  }
+  // Solar end
 }

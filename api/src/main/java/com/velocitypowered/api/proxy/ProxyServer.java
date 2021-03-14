@@ -17,11 +17,14 @@ import java.net.InetSocketAddress;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
+
+import gg.solarmc.loader.DataCenter;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.identity.Identified;
 import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.text.Component;
 import org.checkerframework.checker.nullness.qual.NonNull;
+import space.arim.omnibus.Omnibus;
 
 /**
  * Provides an interface to a Minecraft server proxy.
@@ -210,4 +213,18 @@ public interface ProxyServer extends Audience {
   @NonNull
   BossBar createBossBar(net.kyori.text.Component title, @NonNull BossBarColor color,
       @NonNull BossBarOverlay overlay, float progress);
+
+  /**
+   * Gets the {@code Omnibus} used by the serevr
+   *
+   * @return the omnibus
+   */
+  Omnibus getOmnibus();
+
+  /**
+   * Gets the data center
+   *
+   * @return the data center
+   */
+  DataCenter getDataCenter();
 }

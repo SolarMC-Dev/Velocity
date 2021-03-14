@@ -14,6 +14,8 @@ import com.velocitypowered.api.util.title.Title;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
+import gg.solarmc.loader.OnlineSolarPlayer;
 import net.kyori.adventure.identity.Identified;
 import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.text.Component;
@@ -219,4 +221,11 @@ public interface Player extends CommandSource, Identified, InboundConnection,
    * @param hash the SHA-1 hash value for the resource pack
    */
   void sendResourcePack(String url, byte[] hash);
+
+  /**
+   * Gets the solar player associated with this player
+   *
+   * @return the online solar player for this player
+   */
+  OnlineSolarPlayer getSolarPlayer();
 }
