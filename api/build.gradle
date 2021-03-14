@@ -25,9 +25,6 @@ dependencies {
     api "net.kyori:text-serializer-legacy:${textVersion}"
     api "net.kyori:text-serializer-plain:${textVersion}"
 
-    // DEPRECATED: Will be removed in Velocity 2.0.0
-    api 'com.moandjiezana.toml:toml4j:0.7.2'
-
     api(platform("net.kyori:adventure-bom:${adventureVersion}"))
     api("net.kyori:adventure-api")
     api("net.kyori:adventure-text-serializer-gson")
