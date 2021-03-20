@@ -190,7 +190,7 @@ public class OmnibusEventManager implements EventManager {
       return future.orTimeout(TIMEOUT_SECONDS, TimeUnit.SECONDS);
     }
     eventBus.getDriver().fireEvent(event);
-    return NonObtrudableCompletedFuture.instance();
+    return CompletableFuture.completedFuture(event);
   }
 
   @Override
