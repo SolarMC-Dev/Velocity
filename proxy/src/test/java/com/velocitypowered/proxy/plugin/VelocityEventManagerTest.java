@@ -11,6 +11,8 @@ import org.junit.jupiter.params.provider.ValueSource;
 import static com.velocitypowered.proxy.testutil.FakePluginManager.PLUGIN_A;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class VelocityEventManagerTest {
 
@@ -48,7 +50,8 @@ public class VelocityEventManagerTest {
 
   private void assertFiredEventValue(int value) {
     SimpleEvent se = new SimpleEvent();
-    eventManager.fire(se).join();
+    SimpleEvent shouldBeSameEvent = eventManager.fire(se).join();
+    assertSame(se, shouldBeSameEvent);
     assertEquals(value, se.value);
   }
 
