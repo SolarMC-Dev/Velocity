@@ -1,7 +1,17 @@
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_11
-    targetCompatibility = JavaVersion.VERSION_11
+    // To change the JDK version, velocity-api/build.gradle also must be updated
+    sourceCompatibility = JavaVersion.VERSION_16
+    targetCompatibility = JavaVersion.VERSION_16
+}
+tasks.withType(JavaCompile) {
+    options.compilerArgs += '--enable-preview'
+}
+tasks.withType(Test) {
+    jvmArgs += '--enable-preview'
+}
+tasks.withType(JavaExec) {
+    jvmArgs += '--enable-preview'
 }
 
 publishing {

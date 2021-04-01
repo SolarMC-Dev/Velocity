@@ -1,3 +1,4 @@
+/*
 buildscript {
     repositories {
         jcenter()
@@ -6,10 +7,11 @@ buildscript {
         classpath 'com.github.jengelman.gradle.plugins:shadow:5.0.0'
     }
 }
+*/
 
 plugins {
     id 'java'
-    id "com.github.spotbugs" version "4.2.4" apply false
+    id "com.github.spotbugs" version "4.7.0" apply false
     id "com.adarshr.test-logger" version "2.1.1" apply false
 }
 
@@ -29,7 +31,7 @@ allprojects {
         nettyVersion = '4.1.58.Final'
         guavaVersion = '25.1-jre'
         checkerFrameworkVersion = '3.6.1'
-        dataLoaderVersion = '0.3.0'
+        dataLoaderVersion = '0.4.0'
 
         getCurrentShortRevision = {
             new ByteArrayOutputStream().withStream { os ->
