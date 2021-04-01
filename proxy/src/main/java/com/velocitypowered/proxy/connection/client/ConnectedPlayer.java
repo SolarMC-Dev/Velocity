@@ -24,7 +24,8 @@ import com.velocitypowered.api.proxy.ConnectionRequestBuilder;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ServerConnection;
 import com.velocitypowered.api.proxy.messages.ChannelIdentifier;
-import com.velocitypowered.api.proxy.player.Authenticatable;
+import com.velocitypowered.api.proxy.player.AuthState;
+import com.velocitypowered.api.proxy.player.AuthenticationProvider;
 import com.velocitypowered.api.proxy.player.PlayerSettings;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
 import com.velocitypowered.api.util.GameProfile;
@@ -53,7 +54,7 @@ import com.velocitypowered.proxy.protocol.packet.ResourcePackRequest;
 import com.velocitypowered.proxy.protocol.packet.TitlePacket;
 import com.velocitypowered.proxy.protocol.util.PluginMessageUtil;
 import com.velocitypowered.proxy.server.VelocityRegisteredServer;
-import com.velocitypowered.proxy.solar.PlayerAttachment;
+import com.velocitypowered.proxy.solar.AuthStateHolder;
 import com.velocitypowered.proxy.tablist.VelocityTabList;
 import com.velocitypowered.proxy.tablist.VelocityTabListLegacy;
 import com.velocitypowered.proxy.util.DurationUtils;
@@ -118,10 +119,15 @@ public class ConnectedPlayer implements MinecraftConnectionAssociation, Player {
   private final Collection<String> knownChannels;
   private final CompletableFuture<Void> teardownFuture = new CompletableFuture<>();
   private @MonotonicNonNull List<String> serversToTry = null;
-  private final PlayerAttachment playerAttachment = new PlayerAttachment(); // Solar
+  // Solar start - add AuthStateHolder and OnlineSolarPlayer
+  private final AuthStateHolder<?> authStateHolder;
+  private OnlineSolarPlayer solarPlayer;
 
   ConnectedPlayer(VelocityServer server, GameProfile profile, MinecraftConnection connection,
-      @Nullable InetSocketAddress virtualHost, boolean onlineMode) {
+                  @Nullable InetSocketAddress virtualHost, boolean onlineMode,
+                  AuthStateHolder<?> authStateHolder) {
+    this.authStateHolder = authStateHolder;
+  // Solar end
     this.server = server;
     this.profile = profile;
     this.connection = connection;
@@ -1073,12 +1079,27 @@ public class ConnectedPlayer implements MinecraftConnectionAssociation, Player {
   // Solar start
   @Override
   public OnlineSolarPlayer getSolarPlayer() {
-    return playerAttachment.solarPlayer();
+    /*
+     * It is okay that there is no volatile read here. Fired events
+     * and the volatility of their futures ensure adequate fencing
+     */
+    OnlineSolarPlayer solarPlayer = this.solarPlayer;
+    if (solarPlayer == null) {
+      throw new IllegalStateException("Solar player not available because player is not authenticated");
+    }
+    return solarPlayer;
+  }
+
+  public void insertSolarPlayer(OnlineSolarPlayer solarPlayer) {
+    if (this.solarPlayer != null) { // Best effort
+      throw new IllegalStateException("Solar player already present");
+    }
+    this.solarPlayer = solarPlayer;
   }
 
   @Override
-  public Authenticatable asAuthenticatable() {
-    return playerAttachment;
+  public <A extends AuthState> A getAuthState(AuthenticationProvider<A> authProvider) {
+    return authStateHolder.getAuthState(authProvider);
   }
   // Solar end
 }

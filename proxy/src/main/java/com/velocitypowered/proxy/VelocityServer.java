@@ -13,6 +13,7 @@ import com.velocitypowered.api.plugin.PluginContainer;
 import com.velocitypowered.api.plugin.PluginManager;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
+import com.velocitypowered.api.proxy.player.AuthenticationProvider;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
 import com.velocitypowered.api.proxy.server.ServerInfo;
 import com.velocitypowered.api.util.Favicon;
@@ -38,7 +39,10 @@ import com.velocitypowered.proxy.protocol.util.FaviconSerializer;
 import com.velocitypowered.proxy.protocol.util.GameProfileSerializer;
 import com.velocitypowered.proxy.scheduler.VelocityScheduler;
 import com.velocitypowered.proxy.server.ServerMap;
+import com.velocitypowered.proxy.solar.AuthStateHolder;
+import com.velocitypowered.proxy.solar.AuthenticationProviderLoader;
 import com.velocitypowered.proxy.solar.DataCenterLauncher;
+import com.velocitypowered.proxy.solar.DataLoadControllerImpl;
 import com.velocitypowered.proxy.util.AddressUtil;
 import com.velocitypowered.proxy.util.EncryptionUtils;
 import com.velocitypowered.proxy.util.VelocityChannelRegistrar;
@@ -130,6 +134,7 @@ public class VelocityServer implements ProxyServer, ForwardingAudience {
   // Solar start
   private final Omnibus omnibus;
   private DataCenter dataCenter;
+  private AuthenticationProvider<?> authenticationProvider;
 
   VelocityServer(final Omnibus omnibus, final ProxyOptions options) {
     this.omnibus = omnibus;
@@ -144,6 +149,12 @@ public class VelocityServer implements ProxyServer, ForwardingAudience {
     this.options = options;
     this.bossBarManager = new AdventureBossBarManager();
   }
+
+  // Solar start
+  public AuthStateHolder<?> createAuthStateHolder() {
+    return new AuthStateHolder<>(authenticationProvider);
+  }
+  // Solar end
 
   public KeyPair getServerKeyPair() {
     return serverKeyPair;
@@ -224,6 +235,10 @@ public class VelocityServer implements ProxyServer, ForwardingAudience {
 
     // init console permissions after plugins are loaded
     console.setupPermissions();
+
+    // Solar start - initialize AuthenticationProvider
+    authenticationProvider = new AuthenticationProviderLoader().load(pluginManager, new DataLoadControllerImpl());
+    // Solar end
 
     final Integer port = this.options.getPort();
     if (port != null) {

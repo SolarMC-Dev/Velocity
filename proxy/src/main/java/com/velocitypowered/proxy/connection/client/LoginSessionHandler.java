@@ -216,8 +216,10 @@ public class LoginSessionHandler implements MinecraftSessionHandler {
       }
 
       // Initiate a regular connection and move over to it.
+      // Solar start - add auth state holder
       ConnectedPlayer player = new ConnectedPlayer(server, profileEvent.getGameProfile(),
-          mcConnection, inbound.getVirtualHost().orElse(null), onlineMode);
+          mcConnection, inbound.getVirtualHost().orElse(null), onlineMode, inbound.getAuthStateHolder());
+      // Solar end
       this.connectedPlayer = player;
       if (!server.canRegisterConnection(player)) {
         player.disconnect0(server.getConfiguration().getMessages().getAlreadyConnected(), true);

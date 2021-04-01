@@ -5,6 +5,7 @@ import io.netty.util.ResourceLeakDetector.Level;
 import java.text.DecimalFormat;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import space.arim.omnibus.DefaultOmnibus;
 
 public class Velocity {
 
@@ -54,7 +55,7 @@ public class Velocity {
 
     long startTime = System.currentTimeMillis();
 
-    VelocityServer server = new VelocityServer(options);
+    VelocityServer server = new VelocityServer(new DefaultOmnibus(), options); // Solar - add Omnibus
     server.start();
     Runtime.getRuntime().addShutdownHook(new Thread(() -> server.shutdown(false),
         "Shutdown thread"));

@@ -5,6 +5,8 @@ import com.google.common.base.Preconditions;
 import com.velocitypowered.api.event.connection.ConnectionHandshakeEvent;
 import com.velocitypowered.api.network.ProtocolVersion;
 import com.velocitypowered.api.proxy.InboundConnection;
+import com.velocitypowered.api.proxy.player.AuthState;
+import com.velocitypowered.api.proxy.player.AuthenticationProvider;
 import com.velocitypowered.proxy.VelocityServer;
 import com.velocitypowered.proxy.config.PlayerInfoForwarding;
 import com.velocitypowered.proxy.connection.ConnectionType;
@@ -18,13 +20,12 @@ import com.velocitypowered.proxy.protocol.packet.Handshake;
 import com.velocitypowered.proxy.protocol.packet.LegacyDisconnect;
 import com.velocitypowered.proxy.protocol.packet.LegacyHandshake;
 import com.velocitypowered.proxy.protocol.packet.LegacyPing;
+import com.velocitypowered.proxy.solar.AuthStateHolder;
 import io.netty.buffer.ByteBuf;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.Optional;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
-import net.kyori.adventure.text.TranslatableComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -61,8 +62,12 @@ public class HandshakeSessionHandler implements MinecraftSessionHandler {
 
   @Override
   public boolean handle(Handshake handshake) {
+    // Solar start - add auth state holder
     InitialInboundConnection ic = new InitialInboundConnection(connection,
-        cleanVhost(handshake.getServerAddress()), handshake);
+            cleanVhost(handshake.getServerAddress()),
+            handshake,
+            server.createAuthStateHolder());
+    // Solar end
     StateRegistry nextState = getStateForProtocol(handshake.getNextStatus());
     if (nextState == null) {
       LOGGER.error("{} provided invalid protocol {}", ic, handshake.getNextStatus());
@@ -207,5 +212,12 @@ public class HandshakeSessionHandler implements MinecraftSessionHandler {
     public ProtocolVersion getProtocolVersion() {
       return ProtocolVersion.LEGACY;
     }
+
+    // Solar start
+    @Override
+    public <A extends AuthState> A getAuthState(AuthenticationProvider<A> authProvider) {
+      throw new UnsupportedOperationException();
+    }
+    // Solar end
   }
 }
