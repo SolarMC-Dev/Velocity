@@ -7,6 +7,11 @@ plugins {
 
 //apply from: '../gradle/checkstyle.gradle'
 apply from: '../gradle/common.gradle'
+apply plugin: 'org.cadixdev.licenser'
+
+license {
+    header = project.file('HEADER.txt')
+}
 
 sourceSets {
     ap {

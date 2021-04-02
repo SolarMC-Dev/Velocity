@@ -8,6 +8,11 @@ plugins {
 
 // apply from: '../gradle/checkstyle.gradle'
 apply from: '../gradle/common.gradle'
+apply plugin: 'org.cadixdev.licenser'
+
+license {
+    header = project.rootProject.file('HEADER.txt')
+}
 
 jar {
     manifest {
@@ -24,6 +29,7 @@ jar {
         attributes 'Implementation-Version': version
         attributes 'Implementation-Vendor': "Velocity Contributors"
         attributes 'Multi-Release': 'true'
+        attributes 'Add-Opens': 'java.base/java.lang'
     }
 }
 
