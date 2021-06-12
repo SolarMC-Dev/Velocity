@@ -31,6 +31,7 @@ import com.velocitypowered.api.plugin.PluginManager;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.player.AuthenticationProvider;
+import com.velocitypowered.api.proxy.player.ResourcePackInfo;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
 import com.velocitypowered.api.proxy.server.ServerInfo;
 import com.velocitypowered.api.util.Favicon;
@@ -46,6 +47,7 @@ import com.velocitypowered.proxy.command.builtin.ShutdownCommand;
 import com.velocitypowered.proxy.command.builtin.VelocityCommand;
 import com.velocitypowered.proxy.config.VelocityConfiguration;
 import com.velocitypowered.proxy.connection.client.ConnectedPlayer;
+import com.velocitypowered.proxy.connection.player.VelocityResourcePackInfo;
 import com.velocitypowered.proxy.console.VelocityConsole;
 import com.velocitypowered.proxy.network.ConnectionManager;
 import com.velocitypowered.proxy.plugin.VelocityEventManager;
@@ -708,6 +710,11 @@ public class VelocityServer implements ProxyServer, ForwardingAudience {
         : PRE_1_16_PING_SERIALIZER;
   }
 
+  @Override
+  public ResourcePackInfo.Builder createResourcePackBuilder(String url) {
+    return new VelocityResourcePackInfo.BuilderImpl(url);
+  }
+
   // Solar start
   @Override
   public Omnibus getOmnibus() {
@@ -723,4 +730,5 @@ public class VelocityServer implements ProxyServer, ForwardingAudience {
     return dataCenter;
   }
   // Solar end
+
 }
