@@ -89,7 +89,6 @@ javadoc {
             'https://jd.adventure.kyori.net/api/4.0.0/'
     )
 
-    options.addBooleanOption('-enable-preview', true)
     options.addStringOption('-release', '16')
 
     // Disable the crazy super-strict doclint tool in Java 8
