@@ -19,12 +19,16 @@ package com.velocitypowered.proxy.connection.client;
 
 import com.velocitypowered.api.network.ProtocolVersion;
 import com.velocitypowered.api.proxy.InboundConnection;
+import com.velocitypowered.api.proxy.player.AuthState;
+import com.velocitypowered.api.proxy.player.AuthenticationProvider;
 import com.velocitypowered.proxy.connection.MinecraftConnection;
 import com.velocitypowered.proxy.connection.MinecraftConnectionAssociation;
 import com.velocitypowered.proxy.protocol.packet.Disconnect;
 import com.velocitypowered.proxy.protocol.packet.Handshake;
 import java.net.InetSocketAddress;
 import java.util.Optional;
+
+import com.velocitypowered.proxy.solar.AuthStateHolder;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.apache.logging.log4j.LogManager;
@@ -38,13 +42,17 @@ public final class InitialInboundConnection implements InboundConnection,
   private final MinecraftConnection connection;
   private final String cleanedAddress;
   private final Handshake handshake;
+  // Solar start - add AuthStateHolder
+  private final AuthStateHolder<?> authStateHolder;
 
   InitialInboundConnection(MinecraftConnection connection, String cleanedAddress,
-      Handshake handshake) {
+                           Handshake handshake, AuthStateHolder<?> authStateHolder) {
     this.connection = connection;
     this.cleanedAddress = cleanedAddress;
     this.handshake = handshake;
+    this.authStateHolder = authStateHolder;
   }
+  // Solar end
 
   @Override
   public InetSocketAddress getRemoteAddress() {
@@ -88,4 +96,15 @@ public final class InitialInboundConnection implements InboundConnection,
   public void disconnectQuietly(Component reason) {
     connection.closeWith(Disconnect.create(reason, getProtocolVersion()));
   }
+
+  // Solar start
+  public AuthStateHolder<?> getAuthStateHolder() {
+    return authStateHolder;
+  }
+
+  @Override
+  public <A extends AuthState> A getAuthState(AuthenticationProvider<A> authProvider) {
+    return authStateHolder.getAuthState(authProvider);
+  }
+  // Solar end
 }

@@ -1,21 +1,17 @@
-import com.github.jengelman.gradle.plugins.shadow.transformers.Log4j2PluginsCacheFileTransformer
 
 plugins {
     id 'java'
-    id 'checkstyle'
+    id 'maven-publish'
+    //id 'checkstyle'
+    id "com.adarshr.test-logger"
 }
 
+// apply from: '../gradle/checkstyle.gradle'
+apply from: '../gradle/common.gradle'
 apply plugin: 'org.cadixdev.licenser'
-apply from: '../gradle/checkstyle.gradle'
-apply plugin: 'com.github.johnrengelman.shadow'
 
 license {
     header = project.rootProject.file('HEADER.txt')
-}
-
-java {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
 }
 
 jar {
@@ -37,9 +33,11 @@ jar {
     }
 }
 
+/*
 shadowJar {
     transform(Log4j2PluginsCacheFileTransformer)
 }
+*/
 
 tasks.withType(Checkstyle) {
     exclude('**/com/velocitypowered/proxy/protocol/packet/*.java')
@@ -82,18 +80,20 @@ dependencies {
 
     implementation 'com.electronwill.night-config:toml:3.6.3'
 
-    implementation 'org.bstats:bstats-base:2.2.0'
-
     compileOnly 'com.github.spotbugs:spotbugs-annotations:4.1.2'
 
     testImplementation "org.junit.jupiter:junit-jupiter-api:${junitVersion}"
     testImplementation "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
+    testImplementation "org.junit.jupiter:junit-jupiter-params:${junitVersion}"
+
+    implementation "gg.solarmc.loader:loader-core-implementation:${dataLoaderVersion}"
 }
 
 test {
     useJUnitPlatform()
 }
 
+/*
 shadowJar {
     exclude 'it/unimi/dsi/fastutil/booleans/**'
     exclude 'it/unimi/dsi/fastutil/bytes/**'
@@ -133,10 +133,17 @@ shadowJar {
     exclude 'it/unimi/dsi/fastutil/objects/*Reference*'
     exclude 'it/unimi/dsi/fastutil/shorts/**'
     exclude 'org/checkerframework/checker/**'
-
-    relocate 'org.bstats', 'com.velocitypowered.proxy.bstats'
 }
 
 artifacts {
     archives shadowJar
+}
+*/
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
 }

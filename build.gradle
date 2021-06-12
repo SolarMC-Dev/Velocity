@@ -1,3 +1,4 @@
+/*
 buildscript {
     repositories {
         jcenter()
@@ -6,31 +7,34 @@ buildscript {
         classpath 'com.github.jengelman.gradle.plugins:shadow:5.0.0'
     }
 }
+*/
 
 plugins {
     id 'java'
-    id "com.github.spotbugs" version "4.2.4" apply false
+    id "com.github.spotbugs" version "4.7.0" apply false
+    id "com.adarshr.test-logger" version "2.1.1" apply false
+    id 'nu.studer.credentials' version '2.1' apply false
     id 'org.cadixdev.licenser' version '0.5.1' apply false
 }
 
 allprojects {
     apply plugin: "com.github.spotbugs"
+    apply plugin: 'nu.studer.credentials'
 
-    group 'com.velocitypowered'
-    version '1.1.5-SNAPSHOT'
+    group 'gg.solarmc'
+    version '1.1.9-SNAPSHOT'
 
     ext {
         // dependency versions
         textVersion = '3.0.4'
         adventureVersion = '4.7.0'
-        adventurePlatformVersion = '4.0.0-SNAPSHOT'
         junitVersion = '5.7.0'
         slf4jVersion = '1.7.30'
-        log4jVersion = '2.13.3'
+        log4jVersion = '2.14.0'
         nettyVersion = '4.1.58.Final'
         guavaVersion = '25.1-jre'
         checkerFrameworkVersion = '3.6.1'
-        configurateVersion = '3.7.1'
+        dataLoaderVersion = '0.5.0'
 
         getCurrentShortRevision = {
             new ByteArrayOutputStream().withStream { os ->
@@ -49,13 +53,23 @@ allprojects {
         mavenCentral()
 
         // for kyoripowered dependencies
-        maven {
+        /*maven {
             url 'https://oss.sonatype.org/content/groups/public/'
-        }
+        }*/
 
         // Velocity repo
         maven {
             url "https://nexus.velocitypowered.com/repository/maven-public/"
+        }
+
+        // Solar repo
+        maven {
+            url "https://mvn-repo.platinum-mc.com/releases"
+        }
+
+        // Omnibus repo
+        maven {
+            url "https://mvn-repo.arim.space/lesser-gpl3"
         }
     }
 

@@ -1,0 +1,28 @@
+
+java {
+    // To change the JDK version, velocity-api/build.gradle also must be updated
+    sourceCompatibility = JavaVersion.VERSION_16
+    targetCompatibility = JavaVersion.VERSION_16
+}
+
+publishing {
+    repositories {
+        maven {
+            credentials {
+                username project.credentials.solarRepoUser
+                password project.credentials.solarRepoPassword
+            }
+
+            name = 'solar-repo'
+            def base = 'https://mvn-repo.platinum-mc.com'
+            def releasesRepoUrl = "$base/releases"
+            def snapshotsRepoUrl = "$base/snapshots"
+            url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+        }
+    }
+}
+
+testlogger {
+    showFullStackTraces true
+    showStandardStreams true
+}

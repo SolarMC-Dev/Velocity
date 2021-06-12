@@ -30,6 +30,8 @@ import com.velocitypowered.api.plugin.PluginContainer;
 import com.velocitypowered.api.plugin.PluginManager;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
+import com.velocitypowered.api.proxy.player.AuthenticationProvider;
+import com.velocitypowered.api.proxy.player.ResourcePackInfo;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
 import com.velocitypowered.api.proxy.server.ServerInfo;
 import com.velocitypowered.api.util.Favicon;
@@ -45,6 +47,7 @@ import com.velocitypowered.proxy.command.builtin.ShutdownCommand;
 import com.velocitypowered.proxy.command.builtin.VelocityCommand;
 import com.velocitypowered.proxy.config.VelocityConfiguration;
 import com.velocitypowered.proxy.connection.client.ConnectedPlayer;
+import com.velocitypowered.proxy.connection.player.VelocityResourcePackInfo;
 import com.velocitypowered.proxy.console.VelocityConsole;
 import com.velocitypowered.proxy.network.ConnectionManager;
 import com.velocitypowered.proxy.plugin.VelocityEventManager;
@@ -55,6 +58,10 @@ import com.velocitypowered.proxy.protocol.util.FaviconSerializer;
 import com.velocitypowered.proxy.protocol.util.GameProfileSerializer;
 import com.velocitypowered.proxy.scheduler.VelocityScheduler;
 import com.velocitypowered.proxy.server.ServerMap;
+import com.velocitypowered.proxy.solar.AuthStateHolder;
+import com.velocitypowered.proxy.solar.AuthenticationProviderLoader;
+import com.velocitypowered.proxy.solar.DataCenterLauncher;
+import com.velocitypowered.proxy.solar.DataLoadControllerImpl;
 import com.velocitypowered.proxy.util.AddressUtil;
 import com.velocitypowered.proxy.util.EncryptionUtils;
 import com.velocitypowered.proxy.util.VelocityChannelRegistrar;
@@ -63,6 +70,7 @@ import com.velocitypowered.proxy.util.bossbar.VelocityBossBar;
 import com.velocitypowered.proxy.util.ratelimit.Ratelimiter;
 import com.velocitypowered.proxy.util.ratelimit.Ratelimiters;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import gg.solarmc.loader.DataCenter;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
@@ -101,6 +109,7 @@ import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import space.arim.omnibus.Omnibus;
 
 public class VelocityServer implements ProxyServer, ForwardingAudience {
 
@@ -141,7 +150,14 @@ public class VelocityServer implements ProxyServer, ForwardingAudience {
   private final VelocityScheduler scheduler;
   private final VelocityChannelRegistrar channelRegistrar = new VelocityChannelRegistrar();
 
-  VelocityServer(final ProxyOptions options) {
+  // Solar start
+  private final Omnibus omnibus;
+  private DataCenter dataCenter;
+  private AuthenticationProvider<?> authenticationProvider;
+
+  VelocityServer(final Omnibus omnibus, final ProxyOptions options) {
+    this.omnibus = omnibus;
+  // Solar end
     pluginManager = new VelocityPluginManager(this);
     eventManager = new VelocityEventManager(pluginManager);
     commandManager = new VelocityCommandManager(eventManager);
@@ -152,6 +168,12 @@ public class VelocityServer implements ProxyServer, ForwardingAudience {
     this.options = options;
     this.bossBarManager = new AdventureBossBarManager();
   }
+
+  // Solar start
+  public AuthStateHolder<?> createAuthStateHolder() {
+    return new AuthStateHolder<>(authenticationProvider);
+  }
+  // Solar end
 
   public KeyPair getServerKeyPair() {
     return serverKeyPair;
@@ -221,6 +243,8 @@ public class VelocityServer implements ProxyServer, ForwardingAudience {
       servers.register(new ServerInfo(entry.getKey(), AddressUtil.parseAddress(entry.getValue())));
     }
 
+    dataCenter = new DataCenterLauncher(omnibus, Paths.get("config")).launch(this); // Solar
+
     ipAttemptLimiter = Ratelimiters.createWithMilliseconds(configuration.getLoginRatelimit());
     loadPlugins();
 
@@ -230,6 +254,10 @@ public class VelocityServer implements ProxyServer, ForwardingAudience {
 
     // init console permissions after plugins are loaded
     console.setupPermissions();
+
+    // Solar start - initialize AuthenticationProvider
+    authenticationProvider = new AuthenticationProviderLoader().load(pluginManager, new DataLoadControllerImpl());
+    // Solar end
 
     final Integer port = this.options.getPort();
     if (port != null) {
@@ -243,7 +271,6 @@ public class VelocityServer implements ProxyServer, ForwardingAudience {
       this.cm.queryBind(configuration.getBind().getHostString(), configuration.getQueryPort());
     }
 
-    Metrics.VelocityMetrics.startMetrics(this, configuration.getMetrics());
   }
 
   @SuppressFBWarnings("DM_EXIT")
@@ -682,4 +709,26 @@ public class VelocityServer implements ProxyServer, ForwardingAudience {
     return version.compareTo(ProtocolVersion.MINECRAFT_1_16) >= 0 ? POST_1_16_PING_SERIALIZER
         : PRE_1_16_PING_SERIALIZER;
   }
+
+  @Override
+  public ResourcePackInfo.Builder createResourcePackBuilder(String url) {
+    return new VelocityResourcePackInfo.BuilderImpl(url);
+  }
+
+  // Solar start
+  @Override
+  public Omnibus getOmnibus() {
+    return omnibus;
+  }
+
+  @Override
+  public DataCenter getDataCenter() {
+    DataCenter dataCenter = this.dataCenter;
+    if (dataCenter == null) {
+      throw new IllegalStateException("Not initialized");
+    }
+    return dataCenter;
+  }
+  // Solar end
+
 }

@@ -8,6 +8,8 @@
 package com.velocitypowered.api.proxy;
 
 import com.velocitypowered.api.network.ProtocolVersion;
+import com.velocitypowered.api.proxy.player.AuthState;
+import com.velocitypowered.api.proxy.player.AuthenticationProvider;
 
 import java.net.InetSocketAddress;
 import java.util.Optional;
@@ -44,4 +46,14 @@ public interface InboundConnection {
    * @return the protocol version the connection uses
    */
   ProtocolVersion getProtocolVersion();
+
+  // Solar start
+  /**
+   * Gets the authentication state of the player. Used by the auth plugin
+   *
+   * @param authProvider the auth provider must pass an instance of itself
+   * @return the authentication state
+   */
+  <A extends AuthState> A getAuthState(AuthenticationProvider<A> authProvider);
+  // Solar end
 }

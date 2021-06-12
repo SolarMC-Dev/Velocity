@@ -1,18 +1,13 @@
 plugins {
     id 'java-library'
     id 'maven-publish'
-    id 'checkstyle'
+    //id 'checkstyle'
+    id "com.adarshr.test-logger"
 }
 
+//apply from: '../gradle/checkstyle.gradle'
+apply from: '../gradle/common.gradle'
 apply plugin: 'org.cadixdev.licenser'
-apply from: '../gradle/checkstyle.gradle'
-apply from: '../gradle/publish.gradle'
-apply plugin: 'com.github.johnrengelman.shadow'
-
-java {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
-}
 
 license {
     header = project.file('HEADER.txt')
@@ -34,15 +29,12 @@ dependencies {
     api "net.kyori:text-serializer-legacy:${textVersion}"
     api "net.kyori:text-serializer-plain:${textVersion}"
 
-    // DEPRECATED: Will be removed in Velocity 2.0.0
-    api 'com.moandjiezana.toml:toml4j:0.7.2'
-
     api(platform("net.kyori:adventure-bom:${adventureVersion}"))
     api("net.kyori:adventure-api")
     api("net.kyori:adventure-text-serializer-gson")
     api("net.kyori:adventure-text-serializer-legacy")
     api("net.kyori:adventure-text-serializer-plain")
-    api("net.kyori:adventure-text-serializer-legacy-text3:${adventurePlatformVersion}") {
+    api("gg.solarmc:adventure-text-serializer-legacy-text3:1.0.1") {
         transitive = false
     }
 
@@ -51,12 +43,12 @@ dependencies {
     api "org.checkerframework:checker-qual:${checkerFrameworkVersion}"
     api 'com.velocitypowered:velocity-brigadier:1.0.0-SNAPSHOT'
 
-    api "org.spongepowered:configurate-hocon:${configurateVersion}"
-    api "org.spongepowered:configurate-yaml:${configurateVersion}"
-    api "org.spongepowered:configurate-gson:${configurateVersion}"
-
     testImplementation "org.junit.jupiter:junit-jupiter-api:${junitVersion}"
     testImplementation "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
+
+    // SolarMC
+    api "gg.solarmc.loader:loader-core:${dataLoaderVersion}"
+    api "space.arim.omnibus:omnibus:1.1.0-M2"
 }
 
 task javadocJar(type: Jar) {
@@ -74,33 +66,33 @@ jar {
     from sourceSets.ap.output
 }
 
+/*
 shadowJar {
     from sourceSets.ap.output
 }
+*/
 
 artifacts {
     archives javadocJar
-    archives shadowJar
+//    archives shadowJar
     archives sourcesJar
 }
 
 javadoc {
     options.encoding = 'UTF-8'
     options.charSet = 'UTF-8'
-    options.source = '8'
     options.links(
             'http://www.slf4j.org/apidocs/',
             'https://google.github.io/guava/releases/25.1-jre/api/docs/',
             'https://google.github.io/guice/api-docs/4.2/javadoc/',
-            'https://docs.oracle.com/javase/8/docs/api/',
-            'https://jd.adventure.kyori.net/api/4.0.0/'
+            'https://docs.oracle.com/en/java/javase/16/docs/api/',
+            'https://jd.adventure.kyori.net/api/4.7.0/'
     )
+
+    options.addStringOption('-release', '16')
 
     // Disable the crazy super-strict doclint tool in Java 8
     options.addStringOption('Xdoclint:none', '-quiet')
-
-    // Mark sources as Java 8 source compatible
-    options.source = '8'
 
     // Remove 'undefined' from seach paths when generating javadoc for a non-modular project (JDK-8215291)
     if (JavaVersion.current() >= JavaVersion.VERSION_1_9 && JavaVersion.current() < JavaVersion.VERSION_12) {
